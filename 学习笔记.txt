@@ -10,10 +10,99 @@
 
 
 自定义内容形式：
-类实例-[自定义内容]：生成：类实例对应的css:自定义内容
-[自定义内容]：将自定义内容用于进行设置，有点类似于js中的(代码)
+类实例-[自定义内容]：生成：类实例对应的css:自定义内容。
+[自定义内容]：将自定义内容用于进行设置，有点类似于js中的(代码)。
+[自定义内容]:类实例：将自定义内容作为任意变体，可以直接在类名中编写任何你想要的选择器：
+核心变体模块-[自定义内容]：核心变体会解析自定义内容，通过类似js中的函数重载，支持数字类型、关键字等。
+eg：
+<div class="[&>[data-active]+span]:text-blue-600 ...">
+  <span data-active><!-- ... --></span>
+  <span>This text will be blue</span>
+</div>
+==>
+div > [data-active] + span {
+  color: var(--color-blue-600);
+}
 
 
 还有一种语法可以生成完全任意的 CSS，包括任意属性名称，这对于设置 CSS 变量很有用：
 <div class="[--gutter-width:1rem] lg:[--gutter-width:2rem]"/>
+
+在自定义内容中使用函数（要写在[]中）：
+<div class="h-[--spacing(16)]">test --spacing 6</div>
+
+使用自定义主题变量：
+<div class="h-(--container-3xs)">test --container-3xs</div>
+会转译为<div class="h-[var(--container-3xs)]">test --container-3xs</div>
+如果要手动在[]中引用主题变量，需要写为[var(--主题变量名)]
+
+和动态style配合使用：style只需动态控制css变量的值即可，然后在class中引用该变量的名称。
+<button
+   style={{
+     "--bg-color": buttonColor,
+     "--bg-color-hover": buttonColorHover,
+     "--text-color": textColor,
+   }}
+   className="bg-(--bg-color) text-(--text-color) hover:bg-(--bg-color-hover) ..."
+ >
+   {children}
+</button>
+
+
+封装公用css组件：在@layer components中，可以使用@theme创建的css变量和tailwind函数。
+@import "tailwindcss";
+@layer components {
+  .btn-primary {
+    border-radius: calc(infinity * 1px);
+    background-color: var(--color-violet-500);
+    padding-inline: --spacing(5);
+    padding-block: --spacing(2);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-white);
+    box-shadow: var(--shadow-md);
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-violet-700);
+      }
+    }
+  }
+}
+
+在类实例后面加上！符号，表示最高优先级：
+<div class="bg-teal-500 bg-red-500!">
+=>
+.bg-red-500\! {
+  background-color: var(--color-red-500) !important;
+}
+.bg-teal-500 {
+  background-color: var(--color-teal-500);
+}
+
+将tailwind所有样式优先级都设为最高：
+@import "tailwindcss" important;
+=>
+@layer utilities {
+  .flex {
+    display: flex !important;
+  }
+  .gap-4 {
+    gap: 1rem !important;
+  }
+  .underline {
+    text-decoration-line: underline !important;
+  }
+}
+
+has-变体：has-是:has()的简写，之后可以接几乎任何不带参数的内置变体，带有参数的内置变体需要放在自定义内容中。
+
+
+group-has-变体：
+它通过一套【组合逻辑】来处理这类复合变体：
+1、组合器：引擎中存在处理 group-* 的逻辑，它的任务是寻找带有 .group 类的祖先元素。
+2、功能包装器：存在处理 has-* 的逻辑，它的任务是将参数包装进 :has() 伪类。
+3、动态拼接：当解析器看到 group-has- 时，它会识别出这是一个“嵌套变体”。它先应用 group 的逻辑（寻找父级容器），再在父级容器的选择器上追加 has() 逻辑。
+同理，group-has-之后也可以接几乎任何不带参数的内置变体，带有参数的内置变体需要放在自定义内容中。
+根据以上规则，group-还支持group-hover-、group-focus-、group-even-之类的写法。
+
+not-变体：not-是:not()和@media not()的简写，所以not-后面可以跟内置变体，也可以跟媒体查询变体（比如:lg）。
 
