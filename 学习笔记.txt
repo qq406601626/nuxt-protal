@@ -95,6 +95,14 @@ div > [data-active] + span {
 
 has-变体：has-是:has()的简写，之后可以接几乎任何不带参数的内置变体，带有参数的内置变体需要放在自定义内容中。
 
+group:
+给元素设置组名：group或者group/{groupName}
+使用元素组名：group或者group-变体名称/{groupName}：eg：group-hover/list
+使用任意值为group创建选择器：
+eg：
+<div class="group is-published">
+  <div class="hidden group-[.is-published]:block">
+
 
 group-has-变体：
 它通过一套【组合逻辑】来处理这类复合变体：
