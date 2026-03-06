@@ -4,8 +4,14 @@
 
 <template>
   <div>this is index page</div>
-  <div class="[.test]:bg-red-500">111</div>
-  <div class="[.test]:bg-red-500 test">222</div>
+  <div></div>
+  <div>
+    <div class="group">
+      <div class="group-[aaaa]:bg-red-500">11111</div>
+    </div>
+
+  </div>
+
 </template>
 
 <style scoped>

@@ -102,13 +102,53 @@ group:
 eg：
 <div class="group is-published">
   <div class="hidden group-[.is-published]:block">
+  原理：tailwind由组合器、条件选择器、功能包装器、动态拼接组成，[.is-published]和内置变体性质一样，本质上都是条件选择器。
+
+在group语境中，&指父元素group：
+使用 & 字符来标记 .group 在最终选择器中相对于你传入的选择器应该出现在的位置:
+
+eg：
+  <div class="container">
+    <div class="group">
+      <div class="group-[:nth-of-type(3)]:bg-red-500">11111</div>
+    </div>
+    <div class="group">
+      <div class="group-[:nth-of-type(3)]:bg-red-500">2222</div>
+    </div>
+    <div class="group">
+      <div class="group-[:nth-of-type(3)]:bg-red-500">3333</div>
+    </div>
+  </div>
+  不带&时，意思是当class为group的元素为container元素下的第三个子元素时，才加上背景颜色
+  执行过程：
+  group- => :is(.group)
+  :nth-of-type(3) => :is(:nth-of-type(3))
+  组合：:is(.group):is(:nth-of-type(3))
+
+  <div class="container">
+    <div class="group">
+      <div class="group-[:nth-of-type(3)_&]:bg-red-500">11111</div>
+    </div>
+    <div class="group">
+      <div class="group-[:nth-of-type(3)_&]:bg-red-500">2222</div>
+    </div>
+    <div class="group">
+      <div class="group-[:nth-of-type(3)_&]:bg-red-500">3333</div>
+    </div>
+  </div>
+  带&时，意思是container元素为container父元素下的第三个元素时，才加上背景颜色
+  执行过程：
+  group- => :is(.group)
+  :nth-of-type(3) => :is(:nth-of-type(3))
+  组合：:is(:nth-of-type(3))  :is(.group)
 
 
 group-has-变体：
 它通过一套【组合逻辑】来处理这类复合变体：
 1、组合器：引擎中存在处理 group-* 的逻辑，它的任务是寻找带有 .group 类的祖先元素。
-2、功能包装器：存在处理 has-* 的逻辑，它的任务是将参数包装进 :has() 伪类。
-3、动态拼接：当解析器看到 group-has- 时，它会识别出这是一个“嵌套变体”。它先应用 group 的逻辑（寻找父级容器），再在父级容器的选择器上追加 has() 逻辑。
+2、条件选择器
+3、功能包装器：存在处理 has-* 的逻辑，它的任务是将参数包装进 :has() 伪类。
+4、动态拼接：当解析器看到 group-has- 时，它会识别出这是一个“嵌套变体”。它先应用 group 的逻辑（寻找父级容器），再在父级容器的选择器上追加 has() 逻辑。
 同理，group-has-之后也可以接几乎任何不带参数的内置变体，带有参数的内置变体需要放在自定义内容中。
 根据以上规则，group-还支持group-hover-、group-focus-、group-even-之类的写法。
 
