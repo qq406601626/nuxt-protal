@@ -2,4 +2,5 @@
 /*@import "@nuxt/ui";*/
 
 @theme {
+  --color-primary-50:red;
 }

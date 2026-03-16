@@ -11,7 +11,7 @@
 
 自定义内容形式：
 类实例-[自定义内容]：生成：类实例对应的css:自定义内容。
-[自定义内容]：将自定义内容用于进行设置，有点类似于js中的(代码)。
+[自定义内容]：将自定义内容用于进行设置，有点类似于js中的(代码)：<div class="[mask-type:luminance] hover:[mask-type:alpha]"> / <div class="[--scroll-offset:56px] lg:[--scroll-offset:44px]">。
 [自定义内容]:类实例：将自定义内容作为任意变体，可以直接在类名中编写任何你想要的选择器：
 核心变体模块-[自定义内容]：核心变体会解析自定义内容，通过类似js中的函数重载，支持数字类型、关键字等。
 eg：
@@ -153,4 +153,139 @@ group-has-变体：
 根据以上规则，group-还支持group-hover-、group-focus-、group-even-之类的写法。
 
 not-变体：not-是:not()和@media not()的简写，所以not-后面可以跟内置变体，也可以跟媒体查询变体（比如:lg）。
+
+in-*是group-*的语法糖。
+
+容器：
+@container、@sm、@md、@lg、@xl、@2xl都是基于父元素的宽度来进行响应式的。
+命名容器：@container/{name}，并使用 @sm/{name} 和 @md/{name} 等变体来针对特定容器：
+使用 --container-* 主题变量来自定义容器大小：
+eg：
+@import "tailwindcss";
+@theme {
+  --container-8xl: 96rem; // 这增加了一个新的 8xl 容器查询变体
+}
+对于不想添加到主题中的一次性容器查询尺寸，使用类似 @min-[475px] 和 @max-[960px] 的变体：
+<div class="@container">
+  <div class="flex flex-col @min-[475px]:flex-row">
+使用容器查询单元:
+<div class="@container">
+  <div class="w-[50cqw]">
+
+使用 starting 变体来设置元素在首次渲染到 DOM 时或从 display: none 变为可见时的外观.
+
+使用 data-* 变体根据 数据属性 有条件地应用样式:
+eg1:
+<div data-active class="border border-gray-300 data-active:border-purple-500">
+eg2:
+<div data-size="large" class="data-[size=large]:p-8">
+
+inert变体：允许你为带有inert属性的元素设置样式，这对于添加视觉提示非常有用，可以清楚地表明内容部分不是交互式的。
+
+*变体：设置直接子级的样式，虽然通常最好将实用类直接放在子元素上，但在需要为你无法控制的直接子元素设置样式的情况下，你可以使用 * 变体。
+eg：
+  <ul class="*:rounded-full *:border *:border-sky-100 *:bg-sky-50>
+需要注意的是，直接在子规则本身上使用实用程序覆盖样式是行不通的，因为子规则是在常规规则之后生成的，并且它们具有相同的特殊性：
+<ul class="*:bg-sky-50 ...">
+  <li class="bg-red-50 ...">Sales</li>
+结果显示为sky-50
+行不通，子级无法覆盖父元素赋予它们的样式。
+
+创建自定义断点：
+eg1:
+@import "tailwindcss";
+@theme {
+  --breakpoint-xs: 30rem;
+  --breakpoint-2xl: 100rem;
+  --breakpoint-3xl: 120rem;
+}
+这会将 2xl 断点更新为使用 100rem，而不是默认的 96rem，并创建新的 xs 和 3xl 断点，可以在你的标记中使用：
+<div class="grid xs:grid-cols-2 3xl:grid-cols-6">
+
+eg2:
+@import "tailwindcss";
+@theme {
+    --breakpoint-pad:46.875rem;
+    --breakpoint-pc:90rem;
+}
+<div class="bg-red-950 pad:bg-green-950 pc:bg-blue-950">111111111</div>
+
+使用任意值断点：
+eg：
+<div class="max-[600px]:bg-sky-300 min-[320px]:text-center">
+
+在定义变量时如果需要引用其它主题变量，需要使用inline选项（该引用是值引用而不是变量地址引用）：
+eg：
+@theme inline {
+  --font-sans: var(--font-inter);
+}
+
+生成所有 CSS 变量：
+默认情况下，最终的 CSS 输出中只会生成使用到的 CSS 变量。如果你想始终生成所有的 CSS 变量，可以使用 static 主题选项：
+eg：
+@theme static {
+  --color-primary: var(--color-red-500);
+  --color-secondary: var(--color-blue-500);
+}
+
+使用主题变量：
+在@theme中定义的主题变量，不仅可以通过"变体-类实例"方式使用，而且因为@theme中声明的主题变量会生成对应的css变量，所以还可以通过直接引用对应的css变量进行使用。
+
+封装自定义class样式：这在设置你无法控制的 HTML 样式时通常很有用
+@import "tailwindcss";
+@layer components {
+  .typography {
+    p {
+      font-size: var(--text-base);
+      color: var(--color-gray-700);
+    }
+  }
+}
+
+
+类实例和自定义值结合：
+<div class="relative rounded-xl">
+  <div class="absolute inset-px rounded-[calc(var(--radius-xl)-1px)]">
+在上面的例子中，我们从嵌套内嵌元素的 --radius-xl 值中减去 1px，以确保它具有同心的圆角。
+
+跟调色板相关的实例类：
+bg-*
+text-*
+decoration-*
+border-*
+outline-*
+shadow-*
+inset-shadow-*
+ring-*
+inset-ring-*
+accent-*
+caret-*
+fill-*
+stroke-*
+
+调整透明度：
+可以使用像 bg-black/75 这样的语法来调整颜色的透明度，其中 75 将颜色的 alpha 通道设置为 75%。
+此语法还支持任意值和 CSS 变量简写：
+<div class="bg-pink-500/[71.37%]"/>
+<div class="bg-cyan-400/(--my-alpha-value)"/>
+在 CSS 中将颜色作为变量引用时，如果想快速调整颜色的透明度，Tailwind 提供了一个特殊的 --alpha() 函数：
+eg：
+@import "tailwindcss";
+@layer components {
+  .DocSearch-Hit--Result {
+    background-color: --alpha(var(--color-gray-950) / 10%);
+  }
+}
+
+
+你实际上需要使用下划线，但由于空格也有效而导致歧义，请使用反斜杠转义下划线，Tailwind 不会将其转换为空格：
+<div class="before:content-['hello\_world']">
+如果你使用类似 JSX 这样的东西，其中反斜杠会在渲染的 HTML 中被去掉，请使用 String.raw()，这样反斜杠就不会被当作 JavaScript 的转义字符处理：
+<div className={String.raw`before:content-['hello\_world']`}>
+
+
+Tailwind 中的许多工具类共享一个公共命名空间，但映射到不同的 CSS 属性。例如，text-lg 和 text-black 都共享 text- 命名空间，但一个用于 font-size，另一个用于 color，使用任意值时，Tailwind 通常可以根据你传入的值自动处理这种歧义，有时它确实是模棱两可的，例如在使用 CSS 变量时：<div class="text-(--my-var)">...</div>，在这些情况下，你可以通过在值前添加 CSS 数据类型 来向 Tailwind “提示”底层类型：
+eg：
+<div class="text-(length:--my-var)"/>
+<div class="text-(color:--my-var)"/>
 
