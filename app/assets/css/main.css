@@ -2,5 +2,9 @@
 /*@import "@nuxt/ui";*/
 
 @theme {
-  --color-primary-50:red;
+    --color-primary-50: red;
+}
+
+@utility testInteger-* {
+    aaa: --value([integer]);
 }

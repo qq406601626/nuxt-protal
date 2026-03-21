@@ -289,3 +289,170 @@ eg：
 <div class="text-(length:--my-var)"/>
 <div class="text-(color:--my-var)"/>
 
+如果你想为特定的 HTML 元素添加自己的默认基础样式，可以使用 @layer 指令将这些样式添加到 Tailwind 的 base 层：
+@layer base {
+  h1 {
+    font-size: var(--text-2xl);
+  }
+  h2 {
+    font-size: var(--text-xl);
+  }
+}
+对于你想在项目中添加的任何更复杂的类，如果你仍希望能够使用实用类进行覆盖，请使用 components 层：
+@layer components {
+  .card {
+    background-color: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: --spacing(6);
+    box-shadow: var(--shadow-xl);
+  }
+}
+通过在 components 层定义组件类，你仍然可以在必要时使用工具类来覆盖它们：<div class="card rounded-none"/>
+
+
+在自定义css中引用tailwind的内置变体：
+.my-element {
+  background: white;
+  @variant dark {
+    background: black;
+  }
+}
+=>
+.my-element {
+  background: white;
+  @media (prefers-color-scheme: dark) {
+    background: black;
+  }
+}
+如果你需要同时应用多个变体，请使用嵌套：
+.my-element {
+  background: white;
+  @variant dark {
+    @variant hover {
+      background: black;
+    }
+  }
+}
+=>
+.my-element {
+  background: white;
+  @media (prefers-color-scheme: dark) {
+    &:hover {
+      @media (hover: hover) {
+        background: black;
+      }
+    }
+  }
+}
+
+添加自定义实例类（工具类）：
+使用 @utility 指令将自定义工具添加到你的项目中：
+eg：
+@utility content-auto {
+  content-visibility: auto;
+}
+
+如果是复杂实例类（工具类），可以使用嵌套：
+@utility scrollbar-hidden {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+注册带有参数的实例类（工具类）：1、使用*表示参数。2、使用--value()函数解析值。
+eg：
+@theme {
+  --tab-size-2: 2;
+  --tab-size-4: 4;
+  --tab-size-github: 8;
+}
+
+@utility tab-* {
+  tab-size: --value(--tab-size-*);
+}
+
+
+如果要将值解析为裸值，请使用 --value({type}) 语法，其中 {type} 是你想要将裸值验证为的数据类型，
+可用的基本值数据类型有：
+number。
+integer。
+ratio。
+percentage。
+
+枚举值：请使用 --value('枚举值') 语法（注意引号）：
+eg：
+@utility tab-* {
+  tab-size: --value("aaa", "bbb", "ccc");
+}
+这将匹配像 tab-aaa、tab-bbb 和 tab-ccc 这样的工具。
+
+
+任意值：
+要支持任意值，请使用 --value([{type}]) 语法（注意方括号）来告诉 Tailwind 哪些类型可以作为任意值：
+@utility tab-* {
+  tab-size: --value([integer]);
+}
+可用的任意值数据类型有：
+absolute-size、
+angle、
+bg-size、
+color、
+family-name、
+generic-name、
+image、
+integer、
+length、
+line-width、
+number、
+percentage、
+position、
+ratio、
+relative-size、
+url、
+vector、
+和
+*。
+
+
+同时支持主题、裸值和任意值：有点类似函数重载
+@utility tab-* {
+  tab-size: --value([integer]);
+  tab-size: --value(integer);
+  tab-size: --value(--tab-size-*);
+}
+
+@utility opacity-* {
+  opacity: --value([percentage]);
+  opacity: calc(--value(integer) * 1%);
+  opacity: --value(--opacity-*);
+}
+
+--value() 函数也可以接受多个参数，并按从左到右的顺序解析它们，如果你不需要在不同情况下对返回值进行不同处理的话：
+@utility tab-* {
+  tab-size: --value(--tab-size-*, integer, [integer]);
+}
+@utility opacity-* {
+  opacity: calc(--value(integer) * 1%);
+  opacity: --value(--opacity-*, [percentage]);
+}
+
+
+
+
+eg：
+@utility tab-* {
+  aaa: --value(integer);
+}
+使用：
+<div class="testInteger-20"/>
+=>
+.testInteger-20{
+  aaa:20
+}
+
+
+使用：
+<div class="content-auto"/>
+或者
+<div class="hover:content-auto"/>
+

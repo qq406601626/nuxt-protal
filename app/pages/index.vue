@@ -4,9 +4,9 @@
 
 <template>
   <div>this is index page</div>
-  <div class="bg-primary-50">1111</div>
+  <div class="testInteger-[caonima]">aaaaaaa</div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 
 </style>
