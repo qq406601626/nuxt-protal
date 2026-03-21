@@ -456,3 +456,62 @@ eg：
 或者
 <div class="hover:content-auto"/>
 
+
+自定义变体：
+@custom-variant theme-midnight {
+  &:where([data-theme="midnight"] *) {
+    @slot;
+  }
+}
+使用：
+<html data-theme="midnight">
+  <button class="theme-midnight:bg-black ..."></button>
+</html>
+
+
+
+动态类名:
+由于 Tailwind 将你的源文件扫描为纯文本，因此它无法理解你使用的编程语言中的字符串连接或插值。
+<div class="text-{{ error ? 'red' : 'green' }}-600"></div>
+在上面的示例中，字符串 text-red-600 和 text-green-600 并不存在，因此 Tailwind 不会生成那些类。
+相反，请确保你使用的任何类名都完整存在：
+<div class="{{ error ? 'text-red-600' : 'text-green-600' }}"></div>
+不要使用 props 动态构建类名
+function Button({ color, children }) {
+  return <button className={`bg-${color}-600 hover:bg-${color}-500 ...`}>{children}</button>;
+}
+相反，将 props 映射到在构建时可静态检测的完整类名：
+function Button({ color, children }) {
+  const colorVariants = {
+    blue: "bg-blue-600 hover:bg-blue-500",
+    red: "bg-red-600 hover:bg-red-500",
+  };
+  return <button className={`${colorVariants[color]} ...`}>{children}</button>;
+}
+只要你始终在代码中使用完整的类名，Tailwind 每次都会完美地生成所有 CSS。
+
+
+扫描哪些文件:
+Tailwind 将扫描项目中的每个文件以查找类名，但以下情况除外：
+1、位于你的 .gitignore 文件中的文件
+2、node_modules 目录中的文件
+3、二进制文件，如图片、视频或 zip 文件
+4、CSS 文件
+5、通用包管理器锁定文件
+如果你需要扫描 Tailwind 默认忽略的任何文件，你可以显式注册这些来源：
+使用 @source 明确注册相对于样式表的源路径：
+@import "tailwindcss";
+@source "../node_modules/@acmecorp/ui-lib";
+当你需要扫描使用 Tailwind 构建的外部库时，这特别有用，因为依赖通常列在你的 .gitignore 文件中，并且默认情况下会被 Tailwind 忽略。
+默认情况下，Tailwind 使用当前工作目录作为扫描类名的起点。
+要显式设置源检测的基础路径，请在 CSS 中导入 Tailwind 时使用 source() 函数：
+@import "tailwindcss" source("../src");
+忽略特定路径：
+使用 @source not 来忽略扫描类名时相对于样式表的特定路径：
+@import "tailwindcss";
+@source not "../src/components/legacy";
+禁用自动检测：
+如果你想显式注册所有来源，可以使用 source(none) 完全禁用自动来源检测：
+@import "tailwindcss" source(none);
+@source "../admin";
+@source "../shared";

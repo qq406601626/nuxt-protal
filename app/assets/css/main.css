@@ -2,9 +2,10 @@
 /*@import "@nuxt/ui";*/
 
 @theme {
-    --color-primary-50: red;
 }
 
-@utility testInteger-* {
-    aaa: --value([integer]);
+@custom-variant customHover {
+    &:hover {
+        @slot;
+    }
 }

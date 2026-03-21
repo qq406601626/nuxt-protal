@@ -4,7 +4,7 @@
 
 <template>
   <div>this is index page</div>
-  <div class="testInteger-[caonima]">aaaaaaa</div>
+  <div class="customHover:bg-red-100">aaaa</div>
 </template>
 
 <style scoped lang="scss">
